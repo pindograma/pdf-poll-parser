@@ -1,0 +1,11 @@
+Welcome to pdf-poll-parser!
+
+This is a series of Python scripts that use pdfminer to extract polling data
+from PDFs published by Brazilian pollsters. They generally follow patterns
+that allow for this process.
+
+Currently supported pollsters are:
+- Ibope (2012, 2014, 2016, 2018)
+
+Pollster PDFs were obtained from the following sources:
+- Ibope: http://eleicoes.ibopeinteligencia.com/
