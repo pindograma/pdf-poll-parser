@@ -72,7 +72,7 @@ class PollParser:
     def handle_page(cls, tse_ids, page, ah):
         for element in page:
             if isinstance(element, LTTextBoxHorizontal):
-                text = element.get_text()
+                text = unidecode(element.get_text())
                 
                 if cls.is_relevant_page(text):
                     ret = cls.handle_relevant_page(page, ah)

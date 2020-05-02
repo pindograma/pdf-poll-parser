@@ -5,15 +5,14 @@
 # See the LICENSE file for details.
 
 from util import as_dec, is_number
-from interface import PollParser
+from table import TableParser
 
-from pdfminer.layout import LTTextBox, LTTextBoxHorizontal
-from itertools import tee
+from pdfminer.layout import LTTextBox
 from functools import reduce
 from unidecode import unidecode
 import re
 
-class IbopeParser(PollParser):
+class IbopeParser(TableParser):
     mayor_year = False
 
     @classmethod
@@ -26,104 +25,39 @@ class IbopeParser(PollParser):
 
     @classmethod
     def is_relevant_page(cls, text):
-        text = unidecode(text).lower()
+        text = text.lower()
         return ('votaria' in text and
                 'nao votaria' not in text and
                 'escolher entre' not in text and
                 'com certeza' not in text)
-
+    
     @classmethod
-    def handle_relevant_page(cls, page, already_have):
-        e = True
-        p = None
-        seg_turno = (already_have['pr'][True][False] or
-            already_have['g'][True][False] or
-            already_have['p'][True][False])
-        
-        tot_ref = None
-        relevant_lists = []
+    def get_pste(cls, text, ah):
+        text = text.lower()
 
-        found_president = False
-        found_governor = False
-        found_senator = False
+        if 'votaria' in text:
+            e = False if 'espontanea' in text else True
+            st = True if 'segundo turno' in text else (
+                ah['pr'][True][False] or
+                ah['g'][True][False] or
+                ah['p'][True][False])
+            
+            p = None
+            if 'prefeito' in text:
+                p = 'p'
+            elif 'vereador' in text:
+                p = 'v'
+            elif 'senador' in text:
+                p = 's'
+            elif 'governador' in text:
+                p = 'g'
+            elif 'presidente' in text:
+                p = 'pr'
 
-        total_page, page = tee(page)
+            if p is not None:
+                return (p, st, e)
 
-        for element in total_page:
-            if isinstance(element, LTTextBoxHorizontal):
-                text = unidecode(element.get_text())
-                if 'TOTAL' in text:
-                    tot_ref = (element.bbox[2],
-                               element.bbox[1],
-                               abs(element.bbox[3] - element.bbox[1]))
-                    break
-        
-        if tot_ref is None:
-            return None
-
-        for element in page:
-            if isinstance(element, LTTextBoxHorizontal):
-                text = unidecode(element.get_text()).lower()
-
-                if 'votaria' in text:
-                    if 'espontanea' in text:
-                        e = False
-                    
-                    if 'segundo turno' in text:
-                        seg_turno = True
-
-                    if 'prefeito' in text:
-                        p = 'p'
-                    elif 'vereador' in text:
-                        p = 'v'
-                    elif 'senador' in text:
-                        p = 's'
-                    elif 'governador' in text:
-                        p = 'g'
-                    elif 'presidente' in text:
-                        p = 'pr'
-
-                    if already_have[p][seg_turno][e]:
-                        return None
-
-                    already_have[p][seg_turno][e] = True
-
-                if tot_ref[2] > 30:
-                    if element.bbox[0] < tot_ref[0] and not text.startswith('p.'):
-                        relevant_lists.append({
-                            'text': unidecode(element.get_text()),
-                            'y': element.bbox[1],
-                            'newlines': abs(element.bbox[3] - element.bbox[1]) > 20
-                        })
-
-                elif element.bbox[0] < tot_ref[0] and element.bbox[3] < tot_ref[1]:
-                    if not text.startswith('obs:'):
-                        relevant_lists.append({
-                            'text': unidecode(element.get_text()),
-                            'y': element.bbox[1],
-                            'newlines': abs(element.bbox[3] - element.bbox[1]) > 20
-                        })
-
-        groups = []
-        
-        if len(relevant_lists) == 2 and relevant_lists[0]['newlines'] and relevant_lists[1]['newlines']:
-            final_lists = [x['text'].strip().split('\n') for x in relevant_lists]
-            groups = list(zip(final_lists[0], final_lists[1]))
-        
-        elif len(relevant_lists) >= 2 and reduce(lambda x, y: x+y['newlines'], relevant_lists, 0) == 0:
-            relevant_lists = sorted(relevant_lists, key = lambda k: k['y'])
-            v = [x['text'].strip().replace('\n', '') for x in relevant_lists]
-            it = iter(v)
-            groups = zip(it, it)
-        
-        groups = [sorted(x) for x in groups]
-        groups = [x for x in groups if is_number(x[0])]
-        groups = [x for x in groups if not is_number(x[1])]
-
-        candidates = [x[1] for x in groups]
-        numbers = [as_dec(x[0]) for x in groups]
-
-        return (e, p, dict(zip(candidates, numbers)))
+        return None
 
     @classmethod
     def should_stop(cls, ah, tse_ids):
@@ -183,7 +117,19 @@ class IbopeParser(PollParser):
 
         return False
 
+    @classmethod
+    def is_proper_field(cls, text):
+        text = text.lower()
+        return (not text.startswith('p.') and
+                not text.startswith('obs:'))
+
+    @classmethod
+    def field_has_newlines(cls, element):
+        return abs(element.bbox[3] - element.bbox[1]) > 20
+
 class IbopeParser2012(IbopeParser):
+    mayor_year = True
+
     @classmethod
     def page_numbers_for_id_search(cls):
         return [1]
