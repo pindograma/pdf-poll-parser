@@ -8,11 +8,13 @@ Currently supported pollsters are:
 - Ibope (2012, 2014, 2016, 2018)
 - Escutec (2012, 2016) *
 - Paraná Pesquisas (2016, 2018) *
+- Datafolha (2012, 2014, 2016, 2018) *
 
 Pollster PDFs were obtained from the following sources:
 - Ibope: http://eleicoes.ibopeinteligencia.com/
 - Escutec: http://www.escutec.com/
 - Paraná Pesquisas: https://www.paranapesquisas.com.br/
+- Datafolha: http://datafolha.folha.uol.com.br/
 
 *: Parser fails on 5% or less of the PDF set. These outliers will require
 manual parsing.
