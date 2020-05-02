@@ -124,7 +124,7 @@ class PollParser:
                     break
         
         print('COUNT OF IDS: {}'.format(count_of_ids))
-        pprint(oup)
+        pprint(output)
 
     @classmethod
     def get_output(cls):
