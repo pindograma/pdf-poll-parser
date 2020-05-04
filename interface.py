@@ -93,8 +93,7 @@ class PollParser:
         return None
 
     @classmethod
-    def parse(cls, pathlist):
-        count_of_ids = 0
+    def parse(cls, pathlist, name='default'):
         output = []
 
         for path in pathlist:
@@ -106,7 +105,6 @@ class PollParser:
                     break
 
                 tse_ids = cls.find_ids(page)
-                count_of_ids += len(tse_ids) if tse_ids is not None else 0
 
             if tse_ids is None:
                 print('WARNING: Could not find tse_id.')
@@ -117,8 +115,6 @@ class PollParser:
                 try:
                     ret = cls.handle_page(tse_ids, page, ah)
                     if ret is not None:
-                        print('Processed.')
-                        pprint(ret)
                         output.append(ret)
 
                         if cls.should_stop(ah, tse_ids):
@@ -128,8 +124,24 @@ class PollParser:
                     print('WARNING: Value Error.')
                     break
         
-        print('COUNT OF IDS: {}'.format(count_of_ids))
-        pprint(output)
+        with open(name + '.json', 'w') as f:
+            json.dump(output, f)
+
+        output2 = []
+        for item in output:
+            for k, v in item['poll_data'].items():
+                output2.append({
+                    'tse_id': item['tse_id'],
+                    'estimulada': item['estimulada'],
+                    'position': item['position'],
+                    'candidate': k,
+                    'value': v
+                })
+            
+        with open(name + '.csv', 'w') as f:
+            dict_writer = csv.DictWriter(f, output2[0].keys(), lineterminator='\n')
+            dict_writer.writeheader()
+            dict_writer.writerows(output2)
 
     @classmethod
     def get_output(cls):
