@@ -8,10 +8,15 @@ import re
 from unidecode import unidecode
 from pprint import pprint
 
+import json
+import csv
+
 from pdfminer.layout import LTTextBox, LTTextBoxHorizontal, LAParams
 from pdfminer.converter import PDFPageAggregator
 from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage
+
+from util import normalize_ids
 
 def extract_pages(pdf_file, page_numbers=None,
                     maxpages=0, password='',
@@ -64,7 +69,7 @@ class PollParser:
                 if len(tse_ids) == 0:
                     continue
                 
-                return tse_ids
+                return normalize_ids(tse_ids)
 
         return None
 

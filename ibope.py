@@ -4,7 +4,7 @@
 # This program is licensed under the GNU General Public License, version 3.
 # See the LICENSE file for details.
 
-from util import as_dec, is_number
+from util import as_dec, is_number, normalize_ids
 from table import TableParser
 
 from pdfminer.layout import LTTextBox
@@ -147,10 +147,10 @@ class IbopeParser2012(IbopeParser):
 
                     if match_est is not None and match_num is not None:
                         tse_ids = [match_est.group(1) + '-' + match_num.group(0)]
-                        return tse_ids
+                        return normalize_ids(tse_ids)
 
                     continue
                 
-                return tse_ids
+                return normalize_ids(tse_ids)
 
         return None

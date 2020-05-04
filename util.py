@@ -38,3 +38,6 @@ def generate_pairs(texts):
         pairs.append(dict(zip(candidates, numbers)))
 
     return merge(pairs)
+
+def normalize_ids(tse_ids):
+    return [x.replace('/', '').replace(' ', '').replace('-', '') for x in tse_ids]
