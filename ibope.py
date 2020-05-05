@@ -4,13 +4,16 @@
 # This program is licensed under the GNU General Public License, version 3.
 # See the LICENSE file for details.
 
-from util import as_dec, is_number, normalize_ids
+from util import as_dec, is_number, normalize_ids, merge
 from table import TableParser
 
 from pdfminer.layout import LTTextBox
 from functools import reduce
 from unidecode import unidecode
 import re
+
+from itertools import groupby
+from operator import itemgetter
 
 class IbopeParser(TableParser):
     mayor_year = False
@@ -130,6 +133,32 @@ class IbopeParser(TableParser):
     @classmethod
     def field_has_newlines(cls, element):
         return abs(element.bbox[3] - element.bbox[1]) > 20
+    
+    @classmethod
+    def postprocess(cls, oup):
+        pp = []
+
+        grouper = itemgetter('estimulada', 'tse_id', 'position')
+        for k, grp in groupby(sorted(oup, key = grouper), grouper):
+            polls = [x['poll_data'] for x in grp]
+            
+            if k[2] == 'p':
+                pp.extend([{
+                    'estimulada': k[0],
+                    'tse_id': k[1],
+                    'position': k[2],
+                    'poll_data': p
+                } for p in polls])
+
+            else:
+                pp.append({
+                    'estimulada': k[0],
+                    'tse_id': k[1],
+                    'position': k[2],
+                    'poll_data': merge(polls)
+                })
+        
+        return [i for n, i in enumerate(pp) if i not in pp[n + 1:]]
 
 class IbopeParser2012(IbopeParser):
     mayor_year = True
