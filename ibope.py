@@ -36,7 +36,9 @@ class IbopeParser(TableParser):
                 'com certeza' not in text and
                 'nao concorresse' not in text and
                 'apoio' not in text and
-                'vice-presidente' not in text)
+                'vice-presidente' not in text and
+                'somente estes dois' not in text and
+                'chapas' not in text)
     
     @classmethod
     def get_pste(cls, text, ah):
@@ -106,8 +108,6 @@ class IbopeParser(TableParser):
         return [i for n, i in enumerate(pp) if i not in pp[n + 1:]]
 
 class IbopeParser2012(IbopeParser):
-    mayor_year = True
-
     @classmethod
     def page_numbers_for_id_search(cls):
         return [1]
@@ -140,5 +140,9 @@ class IbopeParser2012(IbopeParser):
 class IbopeParser2014(IbopeParser):
     @classmethod
     def is_stop_marker(cls, text):
-        if 'classifica' in text:
-            return True
+        return 'classifica' in text
+
+class IbopeParser2016(IbopeParser):
+    @classmethod
+    def is_stop_marker(cls, text):
+        return 'jeito nenhum' in text
