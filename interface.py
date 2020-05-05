@@ -78,19 +78,22 @@ class PollParser:
         for element in page:
             if isinstance(element, LTTextBoxHorizontal):
                 text = unidecode(element.get_text())
+
+                if cls.is_stop_marker(text):
+                    return (None, True)
                 
                 if cls.is_relevant_page(text):
                     ret = cls.handle_relevant_page(page, ah)
                     if ret is not None:
                         (e, p, d) = ret
-                        return {
+                        return ({
                             'tse_id': cls.select_tse_id(tse_ids, p),
                             'estimulada': e,
                             'position': p,
                             'poll_data': d
-                        } if d is not None else None
+                        } if d is not None else None, False)
         
-        return None
+        return (None, False)
 
     @classmethod
     def parse(cls, pathlist, name='default'):
@@ -113,9 +116,13 @@ class PollParser:
             ah = cls.generate_already_have()
             for page in extract_pages(str(path), page_numbers = cls.page_numbers_for_content_search()):
                 try:
-                    ret = cls.handle_page(tse_ids, page, ah)
+                    ret, stop = cls.handle_page(tse_ids, page, ah)
+                    if stop:
+                        break
+
                     if ret is not None:
                         output.append(ret)
+                        pprint(ret)
 
                         if cls.should_stop(ah, tse_ids):
                             break
@@ -127,13 +134,19 @@ class PollParser:
         with open(name + '.json', 'w') as f:
             json.dump(output, f)
 
+        pp = cls.postprocess(output)
+
+        with open(name + '_pp.json', 'w') as f:
+            json.dump(pp, f)
+
         output2 = []
-        for item in output:
+        for idx, item in enumerate(pp):
             for k, v in item['poll_data'].items():
                 output2.append({
                     'tse_id': item['tse_id'],
                     'estimulada': item['estimulada'],
                     'position': item['position'],
+                    'scenario': idx,
                     'candidate': k,
                     'value': v
                 })
@@ -160,9 +173,17 @@ class PollParser:
         return False
 
     @classmethod
+    def is_stop_marker(cls, text):
+        return False
+
+    @classmethod
     def is_relevant_page(cls, text):
         return False
 
     @classmethod
     def handle_relevant_page(cls, page, ah):
+        return None
+
+    @classmethod
+    def postprocess(cls, oup):
         return None
