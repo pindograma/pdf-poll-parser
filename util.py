@@ -40,4 +40,4 @@ def generate_pairs(texts):
     return merge(pairs)
 
 def normalize_ids(tse_ids):
-    return [x.replace('/', '').replace(' ', '').replace('-', '') for x in tse_ids]
+    return [x.replace('/', '').replace(' ', '').replace('-', '').replace('\n', '') for x in tse_ids]

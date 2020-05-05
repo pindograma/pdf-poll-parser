@@ -31,9 +31,12 @@ class IbopeParser(TableParser):
         text = text.lower()
         return ('votaria' in text and
                 'nao votaria' not in text and
+                'jeito nenhum' not in text and
                 'escolher entre' not in text and
                 'com certeza' not in text and
-                'nao concorresse' not in text)
+                'nao concorresse' not in text and
+                'apoio' not in text and
+                'vice-presidente' not in text)
     
     @classmethod
     def get_pste(cls, text, ah):
@@ -64,64 +67,6 @@ class IbopeParser(TableParser):
         return None
 
     @classmethod
-    def should_stop(cls, ah, tse_ids):
-        if cls.mayor_year:
-            if (ah['p'][True][True] and
-                ah['p'][True][False]):
-                return True
-
-            if (ah['p'][False][True] and
-                ah['p'][False][False] and
-                ah['v'][False][True] and
-                ah['v'][False][False]):
-                return True
-
-        else:
-            if (len(tse_ids) == 2 and
-                ah['pr'][True][True] and
-                ah['pr'][True][False] and
-                ah['g'][True][True] and
-                ah['g'][True][False]):
-                return True
-
-            if (len(tse_ids) == 2 and
-                ah['pr'][False][True] and
-                ah['pr'][False][False] and
-                ah['g'][False][True] and
-                ah['g'][False][False] and
-                ah['s'][False][True] and
-                ah['s'][False][False]):
-                return True
-            
-            if (len(tse_ids) == 1 and
-                tse_ids[0].startswith('BR') and
-                ah['pr'][True][True] and
-                ah['pr'][True][False]):
-                return True
-            
-            if (len(tse_ids) == 1 and
-                tse_ids[0].startswith('BR') and
-                ah['pr'][False][True] and
-                ah['pr'][False][False]):
-                return True
-
-            if (len(tse_ids) == 1 and
-                not tse_ids[0].startswith('BR') and
-                ah['g'][True][True] and
-                ah['g'][True][False]):
-                return True
-
-            if (len(tse_ids) == 1 and
-                not tse_ids[0].startswith('BR') and
-                ah['g'][False][True] and
-                ah['g'][False][False] and
-                ah['s'][False][True] and
-                ah['s'][False][False]):
-                return True
-
-        return False
-
-    @classmethod
     def is_proper_field(cls, text):
         text = text.lower()
         return (not text.strip() == '' and
@@ -142,21 +87,21 @@ class IbopeParser(TableParser):
         for k, grp in groupby(sorted(oup, key = grouper), grouper):
             polls = [x['poll_data'] for x in grp]
             
-            if k[2] == 'p':
-                pp.extend([{
-                    'estimulada': k[0],
-                    'tse_id': k[1],
-                    'position': k[2],
-                    'poll_data': p
-                } for p in polls])
-
-            else:
+            if k[2] == 'v':
                 pp.append({
                     'estimulada': k[0],
                     'tse_id': k[1],
                     'position': k[2],
                     'poll_data': merge(polls)
                 })
+
+            else:
+                pp.extend([{
+                    'estimulada': k[0],
+                    'tse_id': k[1],
+                    'position': k[2],
+                    'poll_data': p
+                } for p in polls])
         
         return [i for n, i in enumerate(pp) if i not in pp[n + 1:]]
 
@@ -191,3 +136,9 @@ class IbopeParser2012(IbopeParser):
     @classmethod
     def is_stop_marker(cls, text):
         return 'jeito nenhum' in text
+
+class IbopeParser2014(IbopeParser):
+    @classmethod
+    def is_stop_marker(cls, text):
+        if 'classifica' in text:
+            return True
