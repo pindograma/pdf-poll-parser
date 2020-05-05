@@ -29,7 +29,8 @@ class IbopeParser(TableParser):
         return ('votaria' in text and
                 'nao votaria' not in text and
                 'escolher entre' not in text and
-                'com certeza' not in text)
+                'com certeza' not in text and
+                'nao concorresse' not in text)
     
     @classmethod
     def get_pste(cls, text, ah):
@@ -120,8 +121,11 @@ class IbopeParser(TableParser):
     @classmethod
     def is_proper_field(cls, text):
         text = text.lower()
-        return (not text.startswith('p.') and
-                not text.startswith('obs:'))
+        return (not text.strip() == '' and
+                not text.startswith('p.') and
+                not text.startswith('obs:') and
+                'pagina' not in text and
+                'continua' not in text)
 
     @classmethod
     def field_has_newlines(cls, element):
