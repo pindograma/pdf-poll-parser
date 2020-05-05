@@ -158,3 +158,7 @@ class IbopeParser2012(IbopeParser):
                 return normalize_ids(tse_ids)
 
         return None
+    
+    @classmethod
+    def is_stop_marker(cls, text):
+        return 'jeito nenhum' in text
