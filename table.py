@@ -14,6 +14,8 @@ from unidecode import unidecode
 
 from pprint import pprint
 
+LOG = 0
+
 # TableParser deals with polls encoded into tables.
 # PDF tables are annoying because they can have two layouts, rather
 # arbitrarily, i.e.:
@@ -27,6 +29,10 @@ from pprint import pprint
 class TableParser(PollParser):
     @classmethod
     def handle_relevant_page(cls, page, already_have):
+        p = None
+        st = False
+        e = None
+
         tot_ref = None
         relevant_lists = []
 
@@ -46,6 +52,8 @@ class TableParser(PollParser):
 
         for element in page:
             if isinstance(element, LTTextBoxHorizontal):
+                if LOG:
+                    print(element)
                 text = unidecode(element.get_text())
 
                 if cls.rule_out_page(text):
@@ -55,16 +63,16 @@ class TableParser(PollParser):
                 if pste is not None:
                     (p, st, e) = pste
                     
-                    if already_have[p][st][e]:
-                        return None
+                    #if already_have[p][st][e]:
+                    #    return None
 
                     already_have[p][st][e] = True
 
                 if cls.is_proper_field(text):
-                    if tot_ref[2] > 30:
+                    if tot_ref[2] > 20 and element.bbox[1] <= tot_ref[1]:
                         if element.bbox[0] < tot_ref[0]:
                             relevant_lists.append({
-                                'text': text,
+                                'text': text.strip(),
                                 'y': element.bbox[1],
                                 'newlines': cls.field_has_newlines(element),
                                 'height': abs(element.bbox[3] - element.bbox[1])
@@ -72,7 +80,7 @@ class TableParser(PollParser):
 
                     elif element.bbox[0] < tot_ref[0] and element.bbox[3] < tot_ref[1]:
                         relevant_lists.append({
-                            'text': text,
+                            'text': text.strip(),
                             'y': element.bbox[1],
                             'newlines': cls.field_has_newlines(element),
                             'height': abs(element.bbox[3] - element.bbox[1])
@@ -119,9 +127,13 @@ class TableParser(PollParser):
             it = iter(final)
             groups = zip(it, it)
 
+        if LOG:
+            pprint(relevant_lists)
         groups = [sorted(x) for x in groups]
         groups = [x for x in groups if is_number(x[0])]
         groups = [x for x in groups if not is_number(x[1])]
+        if LOG:
+            pprint(groups)
 
         candidates = [x[1] for x in groups]
         numbers = [as_dec(x[0]) for x in groups]
