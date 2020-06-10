@@ -137,12 +137,12 @@ class IbopeParser2012(IbopeParser):
     def is_stop_marker(cls, text):
         return 'jeito nenhum' in text
 
-class IbopeParser2014(IbopeParser):
-    @classmethod
-    def is_stop_marker(cls, text):
-        return 'classifica' in text
-
 class IbopeParser2016(IbopeParser):
     @classmethod
     def is_stop_marker(cls, text):
         return 'jeito nenhum' in text
+
+class IbopeParserGeneral(IbopeParser):
+    @classmethod
+    def is_stop_marker(cls, text):
+        return 'classifica' in text
