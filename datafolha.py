@@ -124,6 +124,12 @@ class DatafolhaGeneralParser(DatafolhaParser):
                 'interesse' not in text)
     
     @classmethod
+    def rule_out_page(cls, text):
+        text = text.lower()
+        return (re.search(r'votos\s+validos', text, re.MULTILINE) or
+                'rejeicao' in text)
+    
+    @classmethod
     def get_pste(cls, text, ah):
         text = text.lower()
 
