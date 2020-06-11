@@ -19,7 +19,8 @@ class EscutecParser(PollParser):
         text = unidecode(text).lower()
         return (('se as eleicoes para' in text or
                  'se as eleicoes fossem hoje' in text) and
-                'nao' not in text)
+                'nao' not in text and
+                'presidente' not in text)
     
     @classmethod
     def handle_relevant_page(cls, page, _):
