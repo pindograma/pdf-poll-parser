@@ -98,9 +98,7 @@ class TableParser(PollParser):
             it = iter(v)
             groups = zip(it, it)
 
-        # TODO: This is buggy and should only be used when the two more reliable
-        # methods above fail.
-        elif len(relevant_lists) >= 2:
+        elif len(relevant_lists) >= 2 and cls.allow_mixed_mode():
             print('WARNING: Operating on mixed mode. Verify results carefully.')
             
             for v in relevant_lists:
@@ -147,3 +145,7 @@ class TableParser(PollParser):
     @classmethod
     def rule_out_page(cls, text):
         return False
+
+    @classmethod
+    def allow_mixed_mode(cls):
+        return True

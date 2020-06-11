@@ -4,11 +4,16 @@
 # This program is licensed under the GNU General Public License, version 3.
 # See the LICENSE file for details.
 
+# NOTE: This parser is unable to parse poll PDFs with multiple scenarios for a
+# first round. Trying it WILL GENERATE UNRELIABLE DATA. At Pindograma, we
+# separate these PDFs from the others.
+
 from util import as_dec, is_number
 from table import TableParser
 
-from itertools import tee
+from itertools import tee, groupby
 from functools import reduce
+from operator import itemgetter
 import re
 
 class DatafolhaParser(TableParser):
@@ -42,31 +47,44 @@ class DatafolhaMayorParser(DatafolhaParser):
         text = text.lower()
         
         if 'segundo turno' in text:
-            return 'p.1' in text
+            return 'p.1 ' in text
 
-        return (('p.1' in text or
-                 'p.2' in text or
-                 'p.3' in text or
-                 'p.4' in text) and
+        return (('p.1 ' in text or
+                 'p.2 ' in text or
+                 'p.2a' in text or
+                 'p.3 ' in text or
+                 'p.4 ' in text) and
                 'votar' in text and
-                'numero' not in text)
+                'numero' not in text and
+                'nao votaria' not in text and
+                'ficasse apenas' not in text and
+                'fonte' not in text and
+                'interesse' not in text and
+                'mudar seu voto' not in text)
 
     @classmethod
     def rule_out_page(cls, text):
         text = text.lower()
-        return 'votos validos' in text
+        return ('votos validos' in text or
+                'voto validos' in text or
+                'rejeicao' in text)
 
     @classmethod
     def get_pste(cls, text, ah):
         text = text.lower()
 
         if text.startswith('p.'):
-            e = 'p.1' in text or 'p.3' in text
+            e = 'estimulada' in text
             st = 'segundo turno' in text
 
             return ('p', st, e)
 
         return None
+
+    
+    @classmethod
+    def allow_mixed_mode(cls):
+        return False
     
 class DatafolhaGeneralParser(DatafolhaParser):
     @classmethod
