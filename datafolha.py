@@ -41,6 +41,23 @@ class DatafolhaParser(TableParser):
     def field_has_newlines(cls, element):
         return len(element.get_text().strip().split('\n')) > 1
 
+    @classmethod
+    def postprocess(cls, oup):
+        pp = []
+
+        grouper = itemgetter('estimulada', 'tse_id', 'position')
+        for k, grp in groupby(sorted(oup, key = grouper), grouper):
+            polls = [x['poll_data'] for x in grp]
+
+            pp.extend([{
+                'estimulada': k[0],
+                'tse_id': k[1],
+                'position': k[2],
+                'poll_data': p
+            } for p in polls])
+        
+        return [i for n, i in enumerate(pp) if i not in pp[n + 1:]]
+
 class DatafolhaMayorParser(DatafolhaParser):
     @classmethod
     def is_relevant_page(cls, text):

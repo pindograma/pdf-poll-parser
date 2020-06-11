@@ -186,4 +186,4 @@ class PollParser:
 
     @classmethod
     def postprocess(cls, oup):
-        return None
+        return oup
