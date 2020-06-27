@@ -32,7 +32,7 @@ class ParanaParser2016(PollParser):
 
     @classmethod
     def handle_relevant_page(cls, page, _):
-        e = False
+        e = True
 
         texts = {}
         for element in page:
@@ -42,8 +42,8 @@ class ParanaParser2016(PollParser):
                 if rule_out_mayor_page(text):
                     return None
 
-                if 'ESTIMULADA' in text:
-                    e = True
+                if 'ESPONTANEA' in unidecode(text):
+                    e = False
 
                 y = round(element.bbox[1], 4)
                 if texts.get(y) is None:
