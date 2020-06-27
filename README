@@ -10,6 +10,7 @@ Currently supported pollsters are:
 - Paraná Pesquisas (2016, 2018) *
 - Datafolha (2012, 2014, 2016, 2018) *
 - Multidados (2016)
+- Veritá (2012, 2014, 2016, 2018) **
 
 Pollster PDFs were obtained from the following sources:
 - Ibope: http://eleicoes.ibopeinteligencia.com/
@@ -20,3 +21,6 @@ Pollster PDFs were obtained from the following sources:
 
 *: Parser fails on 5% or less of the PDF set. These outliers will require
 manual parsing.
+
+**: Not exactly a PDF parser. Instead, it parses a JSON obtained from
+https://institutoverita.com.br/inc/js/psq.php.
