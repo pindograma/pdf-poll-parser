@@ -42,7 +42,7 @@ class MultidadosParser(PollParser):
                 if 'REJEICAO' in text:
                     return None
 
-                if 'ESPONTANEA' in unidecode(text).lower():
+                if 'ESPONTANEA' in unidecode(text).upper():
                     estimulada = False
 
                 y = round(element.bbox[1], 4)
