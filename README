@@ -4,6 +4,12 @@ This is a series of Python scripts that uses pdfminer to extract polling data
 from PDFs published by Brazilian pollsters. The PDFs generally follow patterns
 that allow for this process.
 
+Example usage:
+>>> from pathlib import Path
+>>> from multidados import MultidadosParser
+>>> pathlist = Path('.').glob('data/multidados/*.pdf')
+>>> MultidadosParser.parse(pathlist, 'multidados')
+
 Currently supported pollsters are:
 - Ibope (2012, 2014, 2016, 2018)
 - Escutec (2012, 2016) *
