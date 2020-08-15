@@ -74,8 +74,12 @@ class IbopeParser(TableParser):
         return (not text.strip() == '' and
                 not text.startswith('p.') and
                 not text.startswith('obs:') and
+                not text.startswith('obs.:') and
                 'pagina' not in text and
-                'continua' not in text)
+                'continua' not in text and
+                'no disco' not in text and
+                'tse' not in text and
+                'nao consta' not in text)
 
     @classmethod
     def field_has_newlines(cls, element):
