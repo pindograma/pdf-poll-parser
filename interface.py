@@ -96,6 +96,17 @@ class PollParser:
         return (None, False)
 
     @classmethod
+    def parseids(cls, pathlist, name='default'):
+        for path in pathlist:
+            tse_ids = None
+            for page in extract_pages(str(path), page_numbers = cls.page_numbers_for_id_search()):
+                if tse_ids is not None:
+                    break
+
+                tse_ids = cls.find_ids(page)
+                print(tse_ids)
+
+    @classmethod
     def parse(cls, pathlist, name='default'):
         output = []
 
