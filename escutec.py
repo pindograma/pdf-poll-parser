@@ -20,7 +20,8 @@ class EscutecParser(PollParser):
         return (('se as eleicoes para' in text or
                  'se as eleicoes fossem hoje' in text) and
                 'nao' not in text and
-                'presidente' not in text)
+                'presidente' not in text and
+                'validos' not in text)
     
     @classmethod
     def handle_relevant_page(cls, page, _):

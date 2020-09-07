@@ -79,7 +79,8 @@ class IbopeParser(TableParser):
                 'continua' not in text and
                 'no disco' not in text and
                 'tse' not in text and
-                'nao consta' not in text)
+                'nao consta' not in text and
+                'renuncia' not in text)
 
     @classmethod
     def field_has_newlines(cls, element):
